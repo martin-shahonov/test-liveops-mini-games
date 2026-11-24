@@ -1,0 +1,27 @@
+{
+  "name": "@betty-mini-games/test-liveops-mini-games",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The daily games frame for the performance tests: the Daily Wheel and the Daily Scratcher on one static page, loaded by FrontendV2 in an iframe (web) or a WebView (app).",
+  "type": "module",
+  "scripts": {
+    "dev:frame": "vite --port 8888 --strictPort --host",
+    "dev:games": "vite --port 8888 --strictPort",
+    "build:frame": "tsc --noEmit && vite build",
+    "preview:frame": "vite preview --port 8890 --strictPort --host",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@betty-mini-games/test-liveops-sdk": "^0.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.71.2",
+    "vite": "^8.3.8"
+  }
+}
