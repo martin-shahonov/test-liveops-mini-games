@@ -4,6 +4,31 @@ import type { VfxBundle } from '../types'
 import { texture } from './util'
 
 /**
+ * nixie-fx 0.1.6 workaround: while an effect plays, `drawParticleViews()` re-resolves every emitter
+ * each frame (`ensureEmitterViews()` → `resolveEmitterRender()`), cutting new frame textures for
+ * sprite-sheet emitters. When the emitter's view already has the same render key it drops them
+ * without destroying them, and each stays registered on the shared particle image for good.
+ * Here those dropped frames are destroyed. Remove once nixie-fx fixes this.
+ */
+type EmitterRender = { key: string; ownedFrameTextures: PIXI.Texture[] }
+type EffectInternals = { effect: { emitters: unknown[] }; emitterViews: ({ key: string } | undefined)[] }
+const effectProto = Vfx.PixiVfxEffectInstance.prototype as unknown as {
+    resolveEmitterRender?: (this: EffectInternals, emitter: unknown) => EmitterRender
+}
+const resolveRender = effectProto.resolveEmitterRender
+if (resolveRender) {
+    effectProto.resolveEmitterRender = function (emitter) {
+        const render = resolveRender.call(this, emitter)
+        const view = this.emitterViews[this.effect.emitters.indexOf(emitter)]
+        if (view?.key === render.key) {
+            for (const made of render.ownedFrameTextures) made.destroy(false)
+            render.ownedFrameTextures.length = 0
+        }
+        return render
+    }
+}
+
+/**
  * Where an effect's world lands on the board, as MiniGames' `SpriteProjection`: world
  * (0, 0) at `origin`, `pointsPerUnit` points a world unit, +Y up, and its heights drawn
  * at `heightScale` of their size (the coin shower's flatter arc).
