@@ -60,6 +60,12 @@ export class BoardView extends View<BoardConfig> {
 
     protected _drag?: WheelDrag
 
+    override destroy(options?: PIXI.DestroyOptions): void {
+        this._drag?.destroy()
+        this._drag = undefined
+        super.destroy(options)
+    }
+
     /** The disc's drag area, over the disc and under the title and Spin. */
     attachDrag(drag: WheelDrag): void {
         this._drag = drag

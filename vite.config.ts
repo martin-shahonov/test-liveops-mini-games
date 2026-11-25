@@ -1,3 +1,4 @@
+import { rmSync } from 'node:fs'
 import { defineConfig } from 'vite'
 
 /**
@@ -9,6 +10,17 @@ const SDK_OWNED = ['pixi.js', 'gsap', '@pixi/sound', '@esotericsoftware/spine-pi
 
 export default defineConfig({
     resolve: { dedupe: SDK_OWNED },
+    plugins: [
+        {
+            // public/test-liveops-assets is its own git repo: Vite copies its .git into dist with the
+            // art. Its pack file is over Cloudflare Pages' 25 MiB limit, and the history has no place on a CDN.
+            name: 'drop-assets-git',
+            apply: 'build',
+            closeBundle() {
+                rmSync('dist/test-liveops-assets/.git', { recursive: true, force: true })
+            },
+        },
+    ],
     // `npm run dev:frame` (the frame on /frame/, the dev page on /dev/) and `npm run preview:frame`
     // (the built frame) answer any address: a phone reaches them as http://<the Mac's name>.local
     // or its IP, which Vite would otherwise refuse.

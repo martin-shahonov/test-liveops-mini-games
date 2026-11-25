@@ -188,9 +188,9 @@ export class Cells extends GameObject {
         PIXI.Ticker.shared.add(this.step, this)
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         PIXI.Ticker.shared.remove(this.step, this)
-        super.destroy()
+        super.destroy(options)
     }
 
     /**

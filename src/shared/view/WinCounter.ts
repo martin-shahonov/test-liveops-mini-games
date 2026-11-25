@@ -114,9 +114,9 @@ export class WinCounter extends GameObject {
         this.y = this._rise * (1 - this.textIn + this.textOut)
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         this.stop()
-        super.destroy()
+        super.destroy(options)
     }
 
     protected stopCounting(): void {

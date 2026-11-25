@@ -4,25 +4,31 @@ import type { BitmapFont, BitmapGlyph } from '../ported/runtime/text/metrics'
 import { glyphLead, measureBitmapText } from '../ported/runtime/text/metrics'
 import { texture } from './util'
 
-const glyphTextures = new WeakMap<BitmapFont, Map<string, PIXI.Texture>>()
+/**
+ * Glyphs already cut, by atlas. Keyed by the atlas's source (kept by PixiJS's assets cache for
+ * every game), not by the font object, which each open reads anew: else every open would cut
+ * its glyphs again and leave them listening to the atlas, never freed.
+ */
+const glyphTextures = new WeakMap<PIXI.TextureSource, Map<string, PIXI.Texture>>()
 
 function glyphTexture(font: BitmapFont, ch: string, glyph: BitmapGlyph): PIXI.Texture {
-    let byChar = glyphTextures.get(font)
+    const atlas = texture(String(font.source))
+    // The atlas may be drawn at another size than the font's own numbers say.
+    const sx = atlas.width / font.atlasWidth
+    const sy = atlas.height / font.atlasHeight
+    let byChar = glyphTextures.get(atlas.source)
     if (!byChar) {
         byChar = new Map()
-        glyphTextures.set(font, byChar)
+        glyphTextures.set(atlas.source, byChar)
     }
-    let made = byChar.get(ch)
+    const key = `${ch}:${glyph.x},${glyph.y},${glyph.w},${glyph.h}:${sx},${sy}`
+    let made = byChar.get(key)
     if (!made) {
-        const atlas = texture(String(font.source))
-        // The atlas may be drawn at another size than the font's own numbers say.
-        const sx = atlas.width / font.atlasWidth
-        const sy = atlas.height / font.atlasHeight
         made = new PIXI.Texture({
             source: atlas.source,
             frame: new PIXI.Rectangle(glyph.x * sx, glyph.y * sy, glyph.w * sx, glyph.h * sy),
         })
-        byChar.set(ch, made)
+        byChar.set(key, made)
     }
     return made
 }

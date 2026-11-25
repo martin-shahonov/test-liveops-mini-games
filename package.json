@@ -10,7 +10,8 @@
     "build:frame": "tsc --noEmit && vite build",
     "preview:frame": "vite preview --port 8890 --strictPort --host",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "deploy:frame": "./scripts/deploy.sh"
   },
   "dependencies": {
     "@betty-mini-games/test-liveops-sdk": "^0.0.1"

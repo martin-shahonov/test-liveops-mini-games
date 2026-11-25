@@ -8,6 +8,9 @@ export const DRAWER_FONTS = {
     medium: 'MiniGamesDrawer-InterMedium',
 } as const
 
+/** Faces already registered, by URL: once per page, not once per game open. */
+const registered = new Map<string, Promise<void>>()
+
 /** Registers the game's faces from its assets folder and waits for them (Pixi's Text needs a face loaded to measure it). */
 export async function loadFonts(base: string): Promise<void> {
     const faces: [string, string][] = [
@@ -17,13 +20,22 @@ export async function loadFonts(base: string): Promise<void> {
         [DRAWER_FONTS.medium, 'ui/fonts/drawer-inter-medium.woff2'],
     ]
     await Promise.all(
-        faces.map(async ([family, file]) => {
-            try {
-                const face = new FontFace(family, `url(${base}${file})`)
-                document.fonts.add(await face.load())
-            } catch (error) {
-                console.warn(`[daily-wheel] the ${family} face could not be loaded`, error)
+        faces.map(([family, file]) => {
+            const url = `${base}${file}`
+            let loading = registered.get(url)
+            if (!loading) {
+                loading = (async () => {
+                    try {
+                        const face = new FontFace(family, `url(${url})`)
+                        document.fonts.add(await face.load())
+                    } catch (error) {
+                        registered.delete(url)
+                        console.warn(`[daily-wheel] the ${family} face could not be loaded`, error)
+                    }
+                })()
+                registered.set(url, loading)
             }
+            return loading
         }),
     )
 }

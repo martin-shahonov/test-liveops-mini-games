@@ -19,7 +19,7 @@ function softDisc(size = 64): PIXI.Texture {
     gradient.addColorStop(1, 'rgba(0,0,0,0)')
     g.fillStyle = gradient
     g.fillRect(0, 0, size, size)
-    return PIXI.Texture.from(canvas)
+    return PIXI.Texture.from(canvas, true)
 }
 
 /** MiniGames' `drawFlakeAtlas`: every flake's white shape in its own cell, to be tinted per flake. */
@@ -50,7 +50,7 @@ function flakeAtlas(plan: FlakePlan): { texture: PIXI.Texture; cells: PIXI.Textu
         }
         g.fill()
     })
-    const atlas = PIXI.Texture.from(canvas)
+    const atlas = PIXI.Texture.from(canvas, true)
     const cells: PIXI.Texture[] = []
     for (let i = 0; i < layout.count; i++) {
         const [x, y, w, h] = cellBox(layout, i)
@@ -130,9 +130,11 @@ export class ScratchHand extends GameObject {
         })
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         PIXI.Ticker.shared.remove(this.draw, this)
-        super.destroy()
+        // Cut from the coin sheet, which the assets cache keeps: the frames (not the sheet) go.
+        this._frames.forEach((frame) => frame.destroy())
+        super.destroy(options)
     }
 
     protected draw(): void {

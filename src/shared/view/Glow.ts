@@ -83,9 +83,9 @@ export class Glow extends GameObject {
         return gsap.to(this, { alpha: level, duration: ms / 1000, ease, overwrite: true })
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         gsap.killTweensOf(this)
-        super.destroy()
+        super.destroy(options)
     }
 }
 
@@ -104,7 +104,7 @@ export function softTopMask(box: Rect, from: number, to: number): PIXI.Sprite {
     gradient.addColorStop(Math.max(at(from), at(to)), 'rgba(255,255,255,1)')
     context.fillStyle = gradient
     context.fillRect(0, 0, 1, 256)
-    const sprite = new PIXI.Sprite(PIXI.Texture.from(canvas))
+    const sprite = new PIXI.Sprite(PIXI.Texture.from(canvas, true))
     sprite.position.set(box.x, box.y)
     sprite.width = box.width
     sprite.height = box.height

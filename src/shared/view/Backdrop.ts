@@ -49,10 +49,10 @@ export class Backdrop extends GameObject {
         this.playCut(fit.frameWidth, fit.frameHeight)
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         this._offs.forEach((off) => off())
         this.dropVideo()
-        super.destroy()
+        super.destroy(options)
     }
 
     /** The cut's file for this browser, played muted and looped into a texture. */
@@ -88,7 +88,7 @@ export class Backdrop extends GameObject {
                 return
             }
             this._playing = true
-            this._video.texture = PIXI.Texture.from(element)
+            this._video.texture = PIXI.Texture.from(element, true)
             gsap.to(this._video, { alpha: 1, duration: BACKDROP_FADE_MS / 1000, ease: 'sine.inOut' })
         }
         element.addEventListener('loadeddata', () => ((data = true), shown()))
@@ -105,7 +105,10 @@ export class Backdrop extends GameObject {
         }
         gsap.killTweensOf(this._video)
         this._video.alpha = 0
+        // The video's texture updates itself from the element every frame: destroyed, it lets go.
+        const played = this._video.texture
         this._video.texture = PIXI.Texture.EMPTY
+        if (played !== PIXI.Texture.EMPTY) played.destroy(true)
         this._playing = false
         element.pause()
         element.removeAttribute('src')

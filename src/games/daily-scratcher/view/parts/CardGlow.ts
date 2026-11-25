@@ -33,7 +33,7 @@ export class CardGlow extends GameObject {
         g.beginPath()
         g.roundRect(rect.left - w, rect.top, rect.width, rect.height, _skin.card.radius + CARD_GLOW.grow)
         g.fill()
-        this._sprite = new PIXI.Sprite(PIXI.Texture.from(out))
+        this._sprite = new PIXI.Sprite(PIXI.Texture.from(out, true))
         this.addChild(this._sprite)
         this.alpha = 0
     }

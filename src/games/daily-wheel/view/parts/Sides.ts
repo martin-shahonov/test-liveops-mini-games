@@ -95,10 +95,10 @@ export class Sides extends GameObject {
         sprite.texture = new PIXI.Texture({ source: new PIXI.CanvasSource({ resource: canvas, resolution }) })
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         for (const side of [this._left, this._right]) {
             if (side.texture !== PIXI.Texture.EMPTY) side.texture.destroy(true)
         }
-        super.destroy()
+        super.destroy(options)
     }
 }

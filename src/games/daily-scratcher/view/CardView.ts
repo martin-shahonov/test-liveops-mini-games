@@ -102,6 +102,11 @@ export class CardView extends View<CardConfig> {
         super(config, assets)
     }
 
+    override destroy(options?: PIXI.DestroyOptions): void {
+        PIXI.Ticker.shared.remove(this.pulseStep, this)
+        super.destroy(options)
+    }
+
     get layoutNow(): CardLayoutOnScreen | undefined {
         return this._layout
     }

@@ -174,9 +174,9 @@ export class WinLockup extends GameObject {
         this.visible = false
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         this.stop()
-        super.destroy()
+        super.destroy(options)
     }
 
     protected tick(ticker: PIXI.Ticker): void {

@@ -28,15 +28,24 @@ export class VfxEffect extends GameObject {
     protected _running = false
     protected _time = 0
     protected _emitFor: number
+    /** The particle textures drawn for this effect (not the bundle's shared art): destroyed with it. */
+    protected _ownTextures: PIXI.Texture[]
     protected _onFinished?: () => void
 
     constructor(bundle: VfxBundle, effectId: string) {
         super()
         const effect = bundle.effects[effectId]
         if (!effect) throw new Error(`[daily-wheel] no effect "${effectId}" in the bundle`)
+        // nixie-fx draws five small textures for each effect, into PixiJS's global cache: the effect
+        // does not own them (they are passed in), so this one destroys them, else each game open
+        // would leave five canvases behind.
         const fallback = Vfx.createPixiVfxProceduralTextures()
         const soft = bundle.textures[SOFT_CIRCLE]
-        if (soft) fallback.circle = texture(soft)
+        if (soft) {
+            fallback.circle.destroy(true)
+            fallback.circle = texture(soft)
+        }
+        this._ownTextures = Object.values(fallback).filter((made) => !soft || made !== fallback.circle)
         this._instance = new Vfx.PixiVfxEffectInstance({
             effect,
             autoStart: false,
@@ -94,10 +103,11 @@ export class VfxEffect extends GameObject {
         this.visible = false
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         this.stop()
         this._instance.destroy()
-        super.destroy()
+        this._ownTextures.forEach((made) => made.destroy(true))
+        super.destroy(options)
     }
 
     protected tick(ticker: PIXI.Ticker): void {

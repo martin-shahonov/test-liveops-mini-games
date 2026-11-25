@@ -234,6 +234,12 @@ export class PillButton extends GameObject {
         this.applyLook()
     }
 
+    /** Its press, busy and ring tweens stop with it: they would otherwise touch the destroyed parts. */
+    override destroy(options?: PIXI.DestroyOptions): void {
+        gsap.killTweensOf([this._look, this._pill, this._ring])
+        super.destroy(options)
+    }
+
     protected pressIn(): void {
         if (this._busy) return
         gsap.to(this._look, { value: 1, duration: PRESS.downMs / 1000, ease: 'sine.out', overwrite: true, onUpdate: () => this.applyLook() })

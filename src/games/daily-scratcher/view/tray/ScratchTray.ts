@@ -206,10 +206,10 @@ export class ScratchTray extends GameObject {
         runTray(this.shared, this._options.tell)
     }
 
-    override destroy(): void {
+    override destroy(options?: PIXI.DestroyOptions): void {
         PIXI.Ticker.shared.remove(this.draw, this)
         endTray(this.shared)
-        super.destroy()
+        super.destroy(options)
     }
 
     /** What MiniGames' scene reads off the shared values each frame. */
