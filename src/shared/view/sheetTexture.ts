@@ -11,6 +11,11 @@ const FRAME_STRIDE = 7
  */
 const cut = new Map<string, (PIXI.Texture | null)[]>()
 
+/** Forgets the frames cut so far: their pages are being unloaded (the frame releases a closed game's art). */
+export function forgetCutFrames(): void {
+    cut.clear()
+}
+
 const keyOf = (sheet: SpriteSheet): string =>
     `${sheet.images.join('|')}#${sheet.count}#${sheet.sourceWidth}x${sheet.sourceHeight}#${sheet.frames.join(',')}`
 
